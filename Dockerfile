@@ -50,7 +50,5 @@ LABEL org.opencontainers.image.documentation="https://github.com/ecommbalaji/doc
 # Expose the docling-serve API port
 EXPOSE 8000
 
-# Default command - run with verbose logging
-# Using exec form to ensure PID 1 and proper signal handling
-ENTRYPOINT ["docling-serve"]
-CMD ["run", "-vv"]
+# No default command - Railway will provide the start command
+# This allows flexibility for different runtime configurations
