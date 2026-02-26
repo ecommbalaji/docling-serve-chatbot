@@ -47,12 +47,10 @@ LABEL org.opencontainers.image.description="Docling Serve with pre-downloaded Ra
 LABEL org.opencontainers.image.source="https://github.com/ecommbalaji/docling-serve-chatbot"
 LABEL org.opencontainers.image.documentation="https://github.com/ecommbalaji/docling-serve-chatbot"
 
-# Health check - verify docling-serve is responsive
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/ui || exit 1
-
 # Expose the docling-serve API port
 EXPOSE 8000
 
-# Default command (docling-serve run)
-CMD ["docling-serve", "run"]
+# Default command - run with verbose logging
+# Using exec form to ensure PID 1 and proper signal handling
+ENTRYPOINT ["docling-serve"]
+CMD ["run", "-vv"]
