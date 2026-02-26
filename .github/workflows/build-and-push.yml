@@ -61,6 +61,25 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
+      - name: Print GHCR Image Path
+        run: |
+          echo "================================"
+          echo "✅ Build Complete!"
+          echo "================================"
+          echo ""
+          echo "🐳 GHCR Image URL:"
+          echo ""
+          echo "  ghcr.io/${{ env.IMAGE_NAME }}:latest"
+          echo ""
+          echo "📋 All Tags:"
+          echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n' | sed 's/^/  /'
+          echo ""
+          echo "🚀 Pull Command:"
+          echo ""
+          echo "  docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest"
+          echo ""
+          echo "================================"
+
       - name: Create release notes
         if: startsWith(github.ref, 'refs/tags/')
         run: |
