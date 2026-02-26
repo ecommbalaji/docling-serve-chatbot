@@ -1,0 +1,46 @@
+# Multi-stage build for docling-serve with cached model layers
+# This ensures models are cached as separate layers for faster rebuilds
+
+# Stage 1: Download and cache models
+FROM quay.io/docling-project/docling-serve:latest AS model-cache
+
+# Set working directory
+WORKDIR /opt/app-root/src
+
+# Download all models - this creates a cacheable layer
+# Using --all ensures we get all OCR, layout detection, and table structure models
+RUN docling-tools models download --all -o /opt/app-root/src/models
+
+# Verify models were downloaded
+RUN ls -la /opt/app-root/src/models/ && \
+    echo "✅ Models downloaded successfully"
+
+
+# Stage 2: Final runtime image
+FROM quay.io/docling-project/docling-serve:latest
+
+# Set the artifacts path to point to the pre-downloaded models
+ENV DOCLING_SERVE_ARTIFACTS_PATH=/opt/app-root/src/models
+
+# Copy models from cache stage (this reuses the cached layer from stage 1)
+COPY --from=model-cache /opt/app-root/src/models /opt/app-root/src/models
+
+# Verify models exist in final image
+RUN ls -la /opt/app-root/src/models/ && \
+    echo "✅ Docling-serve ready with pre-cached models"
+
+# Document the image
+LABEL org.opencontainers.image.title="Docling Serve Chatbot"
+LABEL org.opencontainers.image.description="Docling Serve with pre-downloaded RapidOCR models for document processing"
+LABEL org.opencontainers.image.source="https://github.com/ecommbalaji/docling-serve-chatbot"
+LABEL org.opencontainers.image.documentation="https://github.com/ecommbalaji/docling-serve-chatbot"
+
+# Health check - verify docling-serve is responsive
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/ui || exit 1
+
+# Expose the docling-serve API port
+EXPOSE 8000
+
+# Default command (docling-serve run)
+CMD ["docling-serve", "run"]
