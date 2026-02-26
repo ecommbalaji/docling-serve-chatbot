@@ -7,9 +7,10 @@ FROM quay.io/docling-project/docling-serve-cpu AS model-cache
 # Set working directory
 WORKDIR /opt/app-root/src
 
-# Download all models - this creates a cacheable layer
-# Using --all ensures we get all OCR, layout detection, and table structure models
-RUN docling-tools models download --all -o /opt/app-root/src/models
+# Download essential models - this creates a cacheable layer
+# Skipping --all flag to avoid unnecessary vision models
+# Downloads: OCR, layout detection, table structure models only
+RUN docling-tools models download -o /opt/app-root/src/models
 
 # Verify models were downloaded
 RUN ls -la /opt/app-root/src/models/ && \
