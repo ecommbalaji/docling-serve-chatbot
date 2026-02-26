@@ -27,9 +27,14 @@ ENV DOCLING_SERVE_SCRATCH_PATH=/app/scratchpad
 COPY --from=model-cache /opt/app-root/src/models /opt/app-root/src/models
 
 # Create scratchpad directory for temporary processing files
+# Note: Must run as root to create in /app
+USER root
 RUN mkdir -p /app/scratchpad && \
-    chmod 777 /app/scratchpad && \
+    chmod 1777 /app/scratchpad && \
     echo "✅ Scratchpad directory created at /app/scratchpad"
+
+# Return to original user if needed
+USER 1001
 
 # Verify models exist in final image
 RUN ls -la /opt/app-root/src/models/ && \
