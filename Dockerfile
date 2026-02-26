@@ -21,13 +21,20 @@ FROM quay.io/docling-project/docling-serve:latest
 
 # Set the artifacts path to point to the pre-downloaded models
 ENV DOCLING_SERVE_ARTIFACTS_PATH=/opt/app-root/src/models
+ENV DOCLING_SERVE_SCRATCH_PATH=/app/scratchpad
 
 # Copy models from cache stage (this reuses the cached layer from stage 1)
 COPY --from=model-cache /opt/app-root/src/models /opt/app-root/src/models
 
+# Create scratchpad directory for temporary processing files
+RUN mkdir -p /app/scratchpad && \
+    chmod 777 /app/scratchpad && \
+    echo "✅ Scratchpad directory created at /app/scratchpad"
+
 # Verify models exist in final image
 RUN ls -la /opt/app-root/src/models/ && \
-    echo "✅ Docling-serve ready with pre-cached models"
+    ls -la /app/scratchpad && \
+    echo "✅ Docling-serve ready with pre-cached models and scratchpad"
 
 # Document the image
 LABEL org.opencontainers.image.title="Docling Serve Chatbot"
