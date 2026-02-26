@@ -2,7 +2,8 @@
 # This ensures models are cached as separate layers for faster rebuilds
 
 # Stage 1: Download and cache models
-FROM quay.io/docling-project/docling-serve:latest AS model-cache
+# Pin to specific version for consistent caching (not :latest which changes)
+FROM quay.io/docling-project/docling-serve:0.17.0 AS model-cache
 
 # Set working directory
 WORKDIR /opt/app-root/src
@@ -17,7 +18,7 @@ RUN ls -la /opt/app-root/src/models/ && \
 
 
 # Stage 2: Final runtime image
-FROM quay.io/docling-project/docling-serve:latest
+FROM quay.io/docling-project/docling-serve:0.17.0
 
 # Set the artifacts path to point to the pre-downloaded models
 ENV DOCLING_SERVE_ARTIFACTS_PATH=/opt/app-root/src/models
